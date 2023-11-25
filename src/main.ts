@@ -18,10 +18,13 @@ export default class MathJaxPreamblePlugin extends Plugin {
 
 		this.addChild(this.manager = new PreambleManager(this, serializedPreambles));
 
-		// patchMarkdownPreviewView(this);
-		this.registerMarkdownPostProcessor((el, ctx) => {
-			this.manager.loadPreamble(ctx.sourcePath, ctx.frontmatter);
-		}, -Infinity);
+		patchMarkdownPreviewView(this);
+
+		// the following works, but this postprocessor is called for every section element, which is not ideal
+
+		// this.registerMarkdownPostProcessor((el, ctx) => {
+		// 	this.manager.loadPreamble(ctx.sourcePath, ctx.frontmatter);
+		// }, -Infinity);
 		patchEditorView(this);
 	}
 
