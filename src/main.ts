@@ -1,21 +1,18 @@
 import { MarkdownView, Plugin, loadMathJax } from 'obsidian';
-import { DEFAULT_SETTINGS, MathJaxPreamblePluginSettingTab, MathJaxPreamblePluginSettings } from 'settings/settings';
+import { MathJaxPreamblePluginSettingTab } from 'settings/settings';
 import { patchMarkdownPreviewView } from 'patches/markdown-preview-view';
 import { patchEditorView } from 'patches/editor-view';
 import { PreambleManager, SerializedPreambles } from 'manager';
 
 
 export default class MathJaxPreamblePlugin extends Plugin {
-	settings: MathJaxPreamblePluginSettings;
 	manager: PreambleManager;
 
 	async onload() {
 		await loadMathJax();
-		
-		const data = await this.loadData() ?? {} as Partial<MathJaxPreamblePluginSettings> & {preambles?: SerializedPreambles};
-		const serializedPreambles = data['preambles'] || {preambles: [], folderPreambes: []};
-		delete data['preambles'];
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
+
+		const data = await this.loadData() ?? {} as { preambles?: SerializedPreambles };
+		const serializedPreambles = data['preambles'] || { preambles: [], folderPreambes: [] };
 
 		this.addSettingTab(new MathJaxPreamblePluginSettingTab(this));
 
@@ -26,7 +23,7 @@ export default class MathJaxPreamblePlugin extends Plugin {
 	}
 
 	async saveSettings() {
-		await this.saveData(Object.assign({}, this.settings, {preambles: this.manager.serialize()}));
+		await this.saveData({ preambles: this.manager.serialize() });
 	}
 
 	rerender() {

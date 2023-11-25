@@ -146,7 +146,7 @@ export class PreambleManager extends Component {
     }
 
     resolvedPreamble(sourcePath: string, frontmatter?: {preamble?: string}): Preamble | null {
-        if (frontmatter?.preamble) {
+        if (typeof frontmatter?.preamble === 'string') {
             let preamblePath = frontmatter.preamble;
             if (preamblePath.startsWith('[[') && preamblePath.endsWith(']]')) {
                 preamblePath = preamblePath.slice(2, -2);

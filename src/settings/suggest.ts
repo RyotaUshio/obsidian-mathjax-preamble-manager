@@ -12,9 +12,11 @@ abstract class AbstractPathSuggest<T extends { path: string }> extends AbstractI
     }
 
     selectSuggestion({ path }: T) {
-        this.setValue(path);
+        // super.selectSuggestion calls the callbacks registered via onSelect
+        // (alternatively, we can do this.selectCb?.({ path }))
         // @ts-ignore
-        this.selectCb?.({ path });
+        super.selectSuggestion({ path });
+        this.setValue(path);
         // @ts-ignore
         this.suggestEl.hide();
     }
@@ -28,7 +30,6 @@ export class PreambleSuggest extends AbstractPathSuggest<{ path: string, id: str
 
     getSuggestions(query: string) {
         return this.serialized.preambles.filter(preamble => {
-            console.log(preamble, query);
             return preamble.path.toLowerCase().includes(query.toLowerCase())
         });
     }

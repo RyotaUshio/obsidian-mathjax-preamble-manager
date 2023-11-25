@@ -3,12 +3,6 @@ import MyPlugin from 'main';
 import { SerializedPreambles } from 'manager';
 import { FileSuggest, FolderSuggest, PreambleSuggest } from './suggest';
 
-export interface MathJaxPreamblePluginSettings {
-}
-
-export const DEFAULT_SETTINGS: MathJaxPreamblePluginSettings = {
-}
-
 export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 	serialized: SerializedPreambles | null;
 
@@ -111,6 +105,7 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 
 	async hide() {
 		if (this.serialized) await this.plugin.manager.deserialize(this.serialized);
+		this.plugin.rerender();
 		await this.plugin.saveSettings();
 	}
 }
