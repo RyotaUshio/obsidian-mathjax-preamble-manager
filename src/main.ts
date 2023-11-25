@@ -26,14 +26,23 @@ export default class MathJaxPreamblePlugin extends Plugin {
 		await this.saveData({ preambles: this.manager.serialize() });
 	}
 
-	rerender() {
+	async rerender() {
 		for (const leaf of this.app.workspace.getLeavesOfType('markdown')) {
 			const view = leaf.view as MarkdownView;
-			const state = view.getEphemeralState();
+			const state = view.getState();
+			const eState = view.getEphemeralState();
 			view.previewMode.rerender(true);
 			const editor = view.editor;
 			editor.setValue(editor.getValue());
-			view.setEphemeralState(state);
+			if (state.mode === 'preview') {
+				// Temporarily switch to Editing view and back to Reading view
+				// to avoid Properties to be hidden
+				state.mode = 'source';
+				await view.setState(state, { history: false });
+				state.mode = 'preview';
+				await view.setState(state, { history: false });
+			}
+			view.setEphemeralState(eState);
 		}
 	}
 }
