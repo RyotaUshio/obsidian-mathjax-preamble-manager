@@ -2,21 +2,20 @@ import MathJaxPreamblePlugin from "main";
 import { App, Component, Notice, TAbstractFile, TFile, TFolder, normalizePath, renderMath } from "obsidian";
 
 export interface Preamble {
-    id: string,
     path: string;
     content?: string;
 }
 
 export interface SerializedPreambles {
-    preambles: { id: string, path: string }[];
-    folderPreambes: { folderPath: string, preambleId: string }[];
+    preambles: { path: string }[];
+    folderPreambes: { folderPath: string, preamblePath: string }[];
 }
 
 export class PreambleManager extends Component {
     app: App;
-    /** Maps preamble id to preamble. */
+    /** Maps preamble path to preamble. */
     preambles: Map<string, Preamble>;
-    /** Maps folder path to preamble id. */
+    /** Maps folder path to preamble path. */
     folderPreambles: Map<string, string>;
 
     constructor(public plugin: MathJaxPreamblePlugin, private serialized: SerializedPreambles) {
@@ -38,8 +37,8 @@ export class PreambleManager extends Component {
 
     serialize(): SerializedPreambles {
         return {
-            preambles: [...this.preambles.values()].map(({ id, path }) => ({ id, path })),
-            folderPreambes: [...this.folderPreambles.entries()].map(([folderPath, preambleId]) => ({ folderPath, preambleId }))
+            preambles: [...this.preambles.values()].map(({ path }) => ({ path })),
+            folderPreambes: [...this.folderPreambles.entries()].map(([folderPath, preamblePath]) => ({ folderPath, preamblePath }))
         };
     }
 
@@ -47,13 +46,13 @@ export class PreambleManager extends Component {
         this.preambles = new Map();
         const promises = [];
 
-        for (const { id, path } of data.preambles) {
-            if (!path || !id) continue;
+        for (const { path } of data.preambles) {
+            if (!path) continue;
             const file = this.app.vault.getAbstractFileByPath(path);
             if (file instanceof TFile) {
                 promises.push(
                     this.app.vault.read(file).then(
-                        (content) => this.preambles.set(id, { id, path, content })
+                        (content) => this.preambles.set(path, { path, content })
                     )
                 );
             } else {
@@ -64,8 +63,8 @@ export class PreambleManager extends Component {
         await Promise.all(promises);
 
         this.folderPreambles = new Map<string, string>();
-        for (const { folderPath, preambleId } of data.folderPreambes) {
-            this.folderPreambles.set(normalizePath(folderPath), preambleId);
+        for (const { folderPath, preamblePath } of data.folderPreambes) {
+            this.folderPreambles.set(normalizePath(folderPath), preamblePath);
         }
     }
 
@@ -82,10 +81,10 @@ export class PreambleManager extends Component {
 
     async onModify(file: TAbstractFile) {
         if (file instanceof TFile) {
-            for (const [id, { path }] of this.preambles.entries()) {
+            for (const { path } of this.preambles.values()) {
                 if (path === file.path) {
                     const content = await this.app.vault.read(file);
-                    this.preambles.set(id, { id, path, content: this.preprocess(content) });
+                    this.preambles.set(path, { path, content: this.preprocess(content) });
                     this.plugin.rerender();
                 }
             }
@@ -98,23 +97,40 @@ export class PreambleManager extends Component {
     }
 
     onFileRename(file: TFile, oldPath: string) {
-        for (const { id, path, content } of this.preambles.values()) {
+        for (const { path, content } of this.preambles.values()) {
             if (path === oldPath) {
-                this.preambles.set(id, { id, path: file.path, content: content ? this.preprocess(content) : undefined });
+                this.preambles.set(file.path, { path: file.path, content: content ? this.preprocess(content) : undefined });
+                this.preambles.delete(oldPath);
+            }
+        }
+        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
+            if (preamblePath === oldPath) {
+                this.folderPreambles.set(folderPath, file.path);
             }
         }
     }
 
     onFolderRename(folder: TFolder, oldPath: string) {
-        for (const { id, path, content } of this.preambles.values()) {
+        for (const { path, content } of this.preambles.values()) {
             if (path.startsWith(normalizePath(oldPath + '/'))) {
-                this.preambles.set(id, { id, path: path.replace(oldPath, folder.path), content });
+                const newPath = path.replace(oldPath, folder.path);
+                this.preambles.delete(path);
+                this.preambles.set(newPath, { path: newPath, content });
+
             }
         }
-        for (const [folderPath, preambleId] of this.folderPreambles.entries()) {
-            if (folderPath === oldPath || folderPath.startsWith(normalizePath(oldPath + '/'))) {
-                this.folderPreambles.set(folderPath.replace(oldPath, folder.path), preambleId);
+        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
+            const oldFolderPath = normalizePath(oldPath + '/');
+            const newFolderPath = normalizePath(folder.path + '/');
+            if (folderPath === oldPath) {
+                this.folderPreambles.delete(oldFolderPath);
+                this.folderPreambles.set(newFolderPath, preamblePath.replace(oldFolderPath, newFolderPath));
+            } else if (folderPath.startsWith(oldFolderPath) || preamblePath.startsWith(oldFolderPath)) {
                 this.folderPreambles.delete(folderPath);
+                this.folderPreambles.set(
+                    folderPath.replace(oldFolderPath, newFolderPath),
+                    preamblePath.replace(oldFolderPath, newFolderPath)
+                );
             }
         }
     }
@@ -125,27 +141,28 @@ export class PreambleManager extends Component {
     }
 
     onFileDelete(file: TFile) {
-        for (const { id, path } of this.preambles.values()) {
-            if (path === file.path) {
-                this.preambles.delete(id);
-            }
-        }
-    }
-
-    onFolderDelete(folder: TFolder) {
-        for (const { id, path } of this.preambles.values()) {
-            if (path.startsWith(normalizePath(folder.path + '/'))) {
-                this.preambles.delete(id);
-            }
-        }
-        for (const folderPath of this.folderPreambles.keys()) {
-            if (folderPath === folder.path || folderPath.startsWith(normalizePath(folder.path + '/'))) {
+        this.preambles.delete(file.path);
+        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
+            if (preamblePath === file.path) {
                 this.folderPreambles.delete(folderPath);
             }
         }
     }
 
-    resolvedPreamble(sourcePath: string, frontmatter?: {preamble?: string}): Preamble | null {
+    onFolderDelete(folder: TFolder) {
+        for (const { path } of this.preambles.values()) {
+            if (path.startsWith(normalizePath(folder.path + '/'))) {
+                this.preambles.delete(path);
+            }
+        }
+        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
+            if (folder.path === folderPath || folderPath.startsWith(normalizePath(folder.path + '/')) || preamblePath.startsWith(normalizePath(folder.path + '/'))) {
+                this.folderPreambles.delete(folderPath);
+            }
+        }
+    }
+
+    resolvedPreamble(sourcePath: string, frontmatter?: { preamble?: string }): Preamble | null {
         if (typeof frontmatter?.preamble === 'string') {
             let preamblePath = frontmatter.preamble;
             if (preamblePath.startsWith('[[') && preamblePath.endsWith(']]')) {
@@ -161,16 +178,16 @@ export class PreambleManager extends Component {
         const file = this.app.vault.getAbstractFileByPath(sourcePath);
         let folder = file?.parent;
         while (folder) {
-            const id = this.folderPreambles.get(folder.path);
-            if (id) {
-                return this.preambles.get(id) ?? null;
+            const preamblePath = this.folderPreambles.get(folder.path);
+            if (preamblePath) {
+                return this.preambles.get(preamblePath) ?? null;
             }
             folder = folder.parent;
         }
         return null;
     }
 
-    loadPreamble(sourcePath: string, frontmatter?: {preamble?: string}) {
+    loadPreamble(sourcePath: string, frontmatter?: { preamble?: string }) {
         const preamble = this.resolvedPreamble(sourcePath, frontmatter);
         if (preamble?.content) {
             renderMath(preamble.content, false);

@@ -27,8 +27,7 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 				button.setButtonText('Add')
 					.setCta()
 					.onClick(() => {
-						const id = "" + Date.now();
-						serialized.preambles.push({ id, path: "" });
+						serialized.preambles.push({ path: "" });
 						this._display(serialized);
 					});
 			});
@@ -42,12 +41,12 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 						.setValue(preamble.path)
 						.then(text => new FileSuggest(this.plugin, text.inputEl)
 							.onSelect(({ path }) => preamble.path = path)
-						);
+						).onChange((path) => preamble.path = path);
 				})
 				.addExtraButton((button) => {
 					button.setIcon('trash')
 						.onClick(() => {
-							const index = serialized.preambles.findIndex(({ id }) => id === preamble.id);
+							const index = serialized.preambles.findIndex(({ path }) => path === preamble.path);
 							serialized.preambles.splice(index, 1);
 							this._display(serialized);
 						});
@@ -64,7 +63,7 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 				button.setButtonText('Add')
 					.setCta()
 					.onClick(() => {
-						serialized.folderPreambes.push({ folderPath: "", preambleId: "" });
+						serialized.folderPreambes.push({ folderPath: "", preamblePath: "" });
 						this._display(serialized);
 					});
 			});
@@ -78,18 +77,21 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 						.setValue(folderPreamble.folderPath)
 						.then(text => new FolderSuggest(this.plugin, text.inputEl)
 							.onSelect(({ path }) => folderPreamble.folderPath = path)
-						);
+						).onChange((path) => folderPreamble.folderPath = path);
 				})
 				.addText((text) => {
-					const preamble = serialized.preambles.find(({ id }) => id === folderPreamble.preambleId);
+					const preamble = serialized.preambles.find(({ path }) => path === folderPreamble.preamblePath);
 					text.setPlaceholder('Preamble path')
 						.setValue(preamble?.path ?? '')
 						.then(text => new PreambleSuggest(this.plugin, text.inputEl, serialized)
 							.onSelect(({ path }) => {
 								const preamble = serialized.preambles.find((p) => p.path === path);
-								folderPreamble.preambleId = preamble?.id ?? '';
+								folderPreamble.preamblePath = preamble?.path ?? '';
 							})
-						);
+						).onChange((preamblePath) => {
+							const preamble = serialized.preambles.find((p) => p.path === preamblePath);
+							folderPreamble.preamblePath = preamble?.path ?? '';
+						});
 				})
 				.addExtraButton((button) => {
 					button.setIcon('trash')

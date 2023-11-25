@@ -23,7 +23,7 @@ abstract class AbstractPathSuggest<T extends { path: string }> extends AbstractI
 }
 
 
-export class PreambleSuggest extends AbstractPathSuggest<{ path: string, id: string }> {
+export class PreambleSuggest extends AbstractPathSuggest<{ path: string }> {
     constructor(plugin: MathJaxPreamblePlugin, textInputEl: HTMLInputElement | HTMLDivElement, private serialized: SerializedPreambles) {
         super(plugin, textInputEl);
     }
