@@ -1,9 +1,9 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "mathjax-preamble-manager",
+	"name": "MathJax Preamble Manager",
 	"version": "0.1.0",
-	"minAppVersion": "1.4.16",
-	"description": "",
+	"minAppVersion": "1.3.5",
+	"description": "Use preamble in Obsidian / switch preambles note to note",
 	"author": "Ryota Ushio",
 	"authorUrl": "https://github.com/RyotaUshio",
 	"fundingUrl": "https://www.buymeacoffee.com/ryotaushio",

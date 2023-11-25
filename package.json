@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "obsidian-mathjax-preamble-manager",
 	"version": "0.1.0",
-	"description": "",
+	"description": "Use preamble in Obsidian / switch preambles note to note",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
@@ -21,7 +21,6 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
-		"@codemirror/language": "^6.9.1",
-		"@lezer/common": "^1.1.0"
+		"monkey-around": "^2.3.0"
 	}
 }
