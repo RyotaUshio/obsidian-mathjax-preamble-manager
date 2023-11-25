@@ -17,12 +17,15 @@ export class PreambleManager extends Component {
     preambles: Map<string, Preamble>;
     /** Maps folder path to preamble path. */
     folderPreambles: Map<string, string>;
+    /** Maps sourcePath to preamble path. */
+    sourcePreambleMap: Map<string, string>;
 
     constructor(public plugin: MathJaxPreamblePlugin, private serialized: SerializedPreambles) {
         super();
         this.app = plugin.app;
         this.preambles = new Map();
         this.folderPreambles = new Map<string, string>();
+        this.sourcePreambleMap = new Map<string, string>();
     }
 
     onload() {
@@ -192,7 +195,11 @@ export class PreambleManager extends Component {
     loadPreamble(sourcePath: string, frontmatter?: { preamble?: string }) {
         const preamble = this.resolvedPreamble(sourcePath, frontmatter);
         if (preamble?.content) {
-            renderMath(preamble.content, false);
+            const lastPreamblePath = this.sourcePreambleMap.get(sourcePath);
+            if (lastPreamblePath !== preamble.path) {
+                this.sourcePreambleMap.set(sourcePath, preamble.path);
+                renderMath(preamble.content, false);    
+            }
         }
     }
 }
