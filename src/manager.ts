@@ -94,6 +94,7 @@ export class PreambleManager extends Component {
     onRename(file: TAbstractFile, oldPath: string) {
         if (file instanceof TFile) this.onFileRename(file, oldPath);
         if (file instanceof TFolder) this.onFolderRename(file, oldPath);
+        this.plugin.saveSettings();
     }
 
     onFileRename(file: TFile, oldPath: string) {
@@ -138,6 +139,7 @@ export class PreambleManager extends Component {
     onDelete(file: TAbstractFile) {
         if (file instanceof TFile) this.onFileDelete(file);
         if (file instanceof TFolder) this.onFolderDelete(file);
+        this.plugin.saveSettings();
     }
 
     onFileDelete(file: TFile) {

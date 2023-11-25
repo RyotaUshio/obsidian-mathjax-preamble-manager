@@ -106,6 +106,7 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 	}
 
 	async hide() {
+		super.hide();
 		if (this.serialized) await this.plugin.manager.deserialize(this.serialized);
 		this.plugin.rerender();
 		await this.plugin.saveSettings();
