@@ -8,7 +8,7 @@ export interface Preamble {
 
 export interface SerializedPreambles {
     preambles: { path: string }[];
-    folderPreambes: { folderPath: string, preamblePath: string }[];
+    folderPreambles: { folderPath: string, preamblePath: string }[];
 }
 
 export class PreambleManager extends Component {
@@ -41,7 +41,7 @@ export class PreambleManager extends Component {
     serialize(): SerializedPreambles {
         return {
             preambles: [...this.preambles.values()].map(({ path }) => ({ path })),
-            folderPreambes: [...this.folderPreambles.entries()].map(([folderPath, preamblePath]) => ({ folderPath, preamblePath }))
+            folderPreambles: [...this.folderPreambles.entries()].map(([folderPath, preamblePath]) => ({ folderPath, preamblePath }))
         };
     }
 
@@ -66,7 +66,7 @@ export class PreambleManager extends Component {
         await Promise.all(promises);
 
         this.folderPreambles = new Map<string, string>();
-        for (const { folderPath, preamblePath } of data.folderPreambes) {
+        for (const { folderPath, preamblePath } of data.folderPreambles) {
             this.folderPreambles.set(normalizePath(folderPath), preamblePath);
         }
     }

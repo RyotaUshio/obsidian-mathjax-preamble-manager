@@ -12,7 +12,7 @@ export default class MathJaxPreamblePlugin extends Plugin {
 		await loadMathJax();
 
 		const data = await this.loadData() ?? {} as { preambles?: SerializedPreambles };
-		const serializedPreambles = data['preambles'] || { preambles: [], folderPreambes: [] };
+		const serializedPreambles = data['preambles'] || { preambles: [], folderPreambles: [] };
 
 		this.addSettingTab(new MathJaxPreamblePluginSettingTab(this));
 

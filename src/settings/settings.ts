@@ -63,13 +63,13 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 				button.setButtonText('Add')
 					.setCta()
 					.onClick(() => {
-						serialized.folderPreambes.push({ folderPath: "", preamblePath: "" });
+						serialized.folderPreambles.push({ folderPath: "", preamblePath: "" });
 						this._display(serialized);
 					});
 			});
 
 		i = 1;
-		for (const folderPreamble of serialized.folderPreambes) {
+		for (const folderPreamble of serialized.folderPreambles) {
 			new Setting(containerEl)
 				.setName(`Folder preamble ${i}`)
 				.addText((text) => {
@@ -96,8 +96,8 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 				.addExtraButton((button) => {
 					button.setIcon('trash')
 						.onClick(() => {
-							const index = serialized.folderPreambes.findIndex(({ folderPath }) => folderPath === folderPreamble.folderPath);
-							serialized.folderPreambes.splice(index, 1);
+							const index = serialized.folderPreambles.findIndex(({ folderPath }) => folderPath === folderPreamble.folderPath);
+							serialized.folderPreambles.splice(index, 1);
 							this._display(serialized);
 						});
 				})
