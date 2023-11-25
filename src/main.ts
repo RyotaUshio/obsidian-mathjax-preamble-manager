@@ -33,6 +33,8 @@ export default class MathJaxPreamblePlugin extends Plugin {
 	}
 
 	async rerender() {
+		this.manager.forgetHistory();
+
 		for (const leaf of this.app.workspace.getLeavesOfType('markdown')) {
 			const view = leaf.view as MarkdownView;
 			const state = view.getState();
