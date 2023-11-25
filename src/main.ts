@@ -34,6 +34,8 @@ export default class MathJaxPreamblePlugin extends Plugin {
 			const view = leaf.view as MarkdownView;
 			const state = view.getEphemeralState();
 			view.previewMode.rerender(true);
+			const editor = view.editor;
+			editor.setValue(editor.getValue());
 			view.setEphemeralState(state);
 		}
 	}

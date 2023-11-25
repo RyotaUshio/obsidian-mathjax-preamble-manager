@@ -27,7 +27,10 @@ export class PreambleManager extends Component {
     }
 
     onload() {
-        this.app.workspace.onLayoutReady(async () => this.deserialize(this.serialized));
+        this.app.workspace.onLayoutReady(async () => {
+            await this.deserialize(this.serialized);
+            this.plugin.rerender();
+        });
         this.registerEvent(this.app.vault.on('modify', (file) => this.onModify(file)));
         this.registerEvent(this.app.vault.on('rename', (file, oldPath) => this.onRename(file, oldPath)));
         this.registerEvent(this.app.vault.on('delete', (file) => this.onDelete(file)));
@@ -83,6 +86,7 @@ export class PreambleManager extends Component {
                 if (path === file.path) {
                     const content = await this.app.vault.read(file);
                     this.preambles.set(id, { id, path, content: this.preprocess(content) });
+                    this.plugin.rerender();
                 }
             }
         }
