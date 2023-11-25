@@ -5,7 +5,7 @@ This [Obsidian.md](https://obsidian.md) plugin lets you **use MathJax preambles*
 - A preamble file can be any plain text file in your vault, including `.md`, `.sty`, `.tex`, and more.
 - For each note, the preamble to be applied can be specified via either of the following ways:
   1. Folder preamble: Specify a preamble to be applied for all notes under a folder, similarly to [Templater](https://github.com/SilentVoid13/Templater)'s folder templates. If you want a preamble to apply to the entire vault, set it as a folder preamble for the vault root ("/").
-  2. Properties (YAML front matter): Add a link (`[[...]]`) or a path (relative to the vault root) to your note as "preamble" property.
+  2. Properties (YAML front matter): Add a link (`[[...]]`) or a path (relative to the vault root) to a preamble as "preamble" property.
 - Markdown code blocks (<code>``` ... ```</code>) and math blocks (`$$ ... $$`) will be automanically trimmed, so it's easy to edit preambles in Obsidian's markdown editor.
 - When a preable file is modified, the changes will be immediately reflected to currently opened note. You don't need to reload the app to see the effect.
 
