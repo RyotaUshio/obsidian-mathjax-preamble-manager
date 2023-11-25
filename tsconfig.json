@@ -22,5 +22,8 @@
   },
   "include": [
     "**/*.ts"
+  ],
+  "exclude": [
+    "patches/markdown-preview-view.ts"
   ]
 }

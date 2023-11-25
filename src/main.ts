@@ -18,7 +18,10 @@ export default class MathJaxPreamblePlugin extends Plugin {
 
 		this.addChild(this.manager = new PreambleManager(this, serializedPreambles));
 
-		patchMarkdownPreviewView(this);
+		// patchMarkdownPreviewView(this);
+		this.registerMarkdownPostProcessor((el, ctx) => {
+			this.manager.loadPreamble(ctx.sourcePath, ctx.frontmatter);
+		}, -Infinity);
 		patchEditorView(this);
 	}
 
