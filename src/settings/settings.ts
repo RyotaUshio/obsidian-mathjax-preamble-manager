@@ -22,6 +22,7 @@ export class MathJaxPreamblePluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Register preambles')
+			.setDesc('You need to register preamble files before using them. Once registed, you can use them by specifying them (1) as folder preambles (see below) or (2) via the "preamble" note property.')
 			.setHeading()
 			.addButton((button) => {
 				button.setButtonText('Add')
