@@ -21,8 +21,16 @@ But you can install the latest beta release using [BRAT](https://github.com/TfTH
 4.  _(Optional but highly recommended)_ Turn on `Auto-update plugins at startup` at the top of the page.
 5.  Go to `Community plugins > Installed plugins`. You will find “MathJax Preamble Manager” in the list. Click on the toggle button to enable it.
 
+## Companion plugins
+
+Here's a list of other math-related plugins I've developed:
+
+- [Math Booster](https://github.com/RyotaUshio/obsidian-math-booster)
+- [No More Flickering Inline Math](https://github.com/RyotaUshio/obsidian-inline-math)
+- [Better Math in Callouts & Blockquotes](https://github.com/RyotaUshio/obsidian-math-in-callout)
+
 ## Support development
 
-If you find this plugin useful, please support my work by buying me a coffee!
+If you find my plugins useful, please support my work by buying me a coffee!
 
 <a href="https://www.buymeacoffee.com/ryotaushio" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
