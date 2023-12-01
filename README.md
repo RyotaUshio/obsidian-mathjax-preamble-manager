@@ -28,6 +28,7 @@ Here's a list of other math-related plugins I've developed:
 - [Math Booster](https://github.com/RyotaUshio/obsidian-math-booster)
 - [No More Flickering Inline Math](https://github.com/RyotaUshio/obsidian-inline-math)
 - [Better Math in Callouts & Blockquotes](https://github.com/RyotaUshio/obsidian-math-in-callout)
+- [Auto-\\displaystyle Inline Math](https://github.com/RyotaUshio/obsidian-auto-displaystyle-inline-math)
 
 ## Support development
 
