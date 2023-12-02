@@ -55,7 +55,7 @@ export class PreambleManager extends Component {
             if (file instanceof TFile) {
                 promises.push(
                     this.app.vault.read(file).then(
-                        (content) => this.preambles.set(path, { path, content })
+                        (content) => this.preambles.set(path, { path, content: this.preprocess(content) })
                     )
                 );
             } else {
@@ -73,7 +73,11 @@ export class PreambleManager extends Component {
 
     preprocess(data: string): string {
         data = data.trim();
-        if (data.startsWith('```')) data = data.slice(3).trim();
+        if (data.startsWith('```')) {
+            const lineBreak = data.indexOf('\n');
+            if (lineBreak === -1) data = data.slice(3).trim();
+            else data = data.slice(lineBreak + 1).trim(); // ignore language
+        }
         if (data.endsWith('```')) data = data.slice(0, -3).trim();
         if (data.startsWith('$$')) data = data.slice(2).trim();
         if (data.endsWith('$$')) data = data.slice(0, -2).trim();
