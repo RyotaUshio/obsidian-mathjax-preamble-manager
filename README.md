@@ -11,7 +11,7 @@ This [Obsidian.md](https://obsidian.md) plugin lets you **use MathJax preambles*
 
 ## Example
 
-So suppose you want to use different probability symbol for different paths, say, 
+So suppose you want to use different probability symbols for different paths, say, 
 - $\mathbb{P} \left( \cdots \right)$ for `Folder A`
 - $\mathrm{Pr} \left[ \cdots \right]$ for `Note B`
 
