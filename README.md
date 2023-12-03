@@ -9,6 +9,9 @@ This [Obsidian.md](https://obsidian.md) plugin lets you **use MathJax preambles*
 - Markdown code blocks (<code>``` ... ```</code>) and math blocks (`$$ ... $$`) will be automanically trimmed, so it's easy to edit preambles in Obsidian's markdown editor.
 - When a preable file is modified, the changes will be immediately reflected to currently opened note. You don't need to reload the app to see the effect.
 
+> [!note]
+> Once a command is defined via `\newcommand`, it will not be removed unless it's overwritten by another `\newcommand` or `\renewcommand`. If you want to remove the effect of a certain command, you need to reload the app.
+
 ## Example
 
 So suppose you want to use different probability symbols for different paths, say, 
