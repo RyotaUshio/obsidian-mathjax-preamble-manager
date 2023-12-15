@@ -1,3 +1,4 @@
+// Taken from Obsidian's app.js
 export function load(src: string, options?: { before?: () => void, after?: () => void }) {
     let loaded = false;
     let promise: Promise<void> | null = null;

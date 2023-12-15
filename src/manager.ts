@@ -1,10 +1,12 @@
 import MathJaxPreamblePlugin from "main";
+import { DEFAULT_MATHJAX_CONFIG } from "mathjax";
 import { App, Component, Notice, TAbstractFile, TFile, TFolder, normalizePath, renderMath } from "obsidian";
 import { load } from "utils";
 
 export interface Preamble {
     path: string;
     content?: string;
+    MathJax?: NonNullable<any>;
 }
 
 export interface SerializedPreambles {
@@ -29,45 +31,19 @@ export class PreambleManager extends Component {
         this.lastPreamblePath = null;
     }
 
-    async loadMathJax() {
-        (window as any).oldMathJax = (window as any).MathJax;
+    async reloadMathJax(modifyConfig?: (MathJax: any) => void) {
+        const config = modifyConfig ? modifyConfig(DEFAULT_MATHJAX_CONFIG) : DEFAULT_MATHJAX_CONFIG;
+        const originalMathJax = (window as any).MathJax;
+        document.querySelector('script[src="/lib/mathjax/tex-chtml-full.js"]')?.remove();
         await load('/lib/mathjax/tex-chtml-full.js', {
             before: function () {
-                (window as any).MathJax = {
-                    tex: {
-                        inlineMath: [],
-                        displayMath: [],
-                        processEscapes: !1,
-                        processEnvironments: !1,
-                        processRefs: !1
-                    },
-                    startup: {
-                        typeset: !1
-                    },
-                    options: {
-                        enableMenu: !1,
-                        menuOptions: {
-                            settings: {
-                                renderer: "CHTML"
-                            }
-                        },
-                        renderActions: {
-                            assistiveMml: []
-                        },
-                        safeOptions: {
-                            safeProtocols: {
-                                http: !0,
-                                https: !0,
-                                file: !0,
-                                javascript: !1,
-                                data: !1
-                            }
-                        }
-                    }
-                },
-                    localStorage.removeItem("MathJax-Menu-Settings")
+                (window as any).MathJax = config;
+                localStorage.removeItem("MathJax-Menu-Settings");
             }
         }).promise;
+        const newMathJax = (window as any).MathJax;
+        (window as any).MathJax = originalMathJax;
+        return newMathJax;
     }
 
     onload() {
@@ -240,7 +216,11 @@ export class PreambleManager extends Component {
 
     loadPreamble(sourcePath: string, frontmatter?: { preamble?: string }) {
         const preamble = this.resolvedPreamble(sourcePath, frontmatter);
-        if (preamble?.content) {
+        if (preamble) this.loadPreambleNonStrict(preamble);
+    }
+
+    loadPreambleNonStrict(preamble: Preamble) {
+        if (preamble.content) {
             if (this.lastPreamblePath !== preamble.path) {
                 renderMath(preamble.content, false);
                 this.lastPreamblePath = preamble.path;
