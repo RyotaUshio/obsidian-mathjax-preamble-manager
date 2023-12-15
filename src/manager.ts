@@ -1,5 +1,6 @@
 import MathJaxPreamblePlugin from "main";
 import { App, Component, Notice, TAbstractFile, TFile, TFolder, normalizePath, renderMath } from "obsidian";
+import { load } from "utils";
 
 export interface Preamble {
     path: string;
@@ -26,6 +27,47 @@ export class PreambleManager extends Component {
         this.preambles = new Map();
         this.folderPreambles = new Map<string, string>();
         this.lastPreamblePath = null;
+    }
+
+    async loadMathJax() {
+        (window as any).oldMathJax = (window as any).MathJax;
+        await load('/lib/mathjax/tex-chtml-full.js', {
+            before: function () {
+                (window as any).MathJax = {
+                    tex: {
+                        inlineMath: [],
+                        displayMath: [],
+                        processEscapes: !1,
+                        processEnvironments: !1,
+                        processRefs: !1
+                    },
+                    startup: {
+                        typeset: !1
+                    },
+                    options: {
+                        enableMenu: !1,
+                        menuOptions: {
+                            settings: {
+                                renderer: "CHTML"
+                            }
+                        },
+                        renderActions: {
+                            assistiveMml: []
+                        },
+                        safeOptions: {
+                            safeProtocols: {
+                                http: !0,
+                                https: !0,
+                                file: !0,
+                                javascript: !1,
+                                data: !1
+                            }
+                        }
+                    }
+                },
+                    localStorage.removeItem("MathJax-Menu-Settings")
+            }
+        }).promise;
     }
 
     onload() {
