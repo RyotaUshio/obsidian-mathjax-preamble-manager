@@ -31,8 +31,8 @@ export class PreambleManager extends Component {
         this.lastPreamblePath = null;
     }
 
-    async reloadMathJax(modifyConfig?: (MathJax: any) => void) {
-        const config = modifyConfig ? modifyConfig(DEFAULT_MATHJAX_CONFIG) : DEFAULT_MATHJAX_CONFIG;
+    async reloadMathJax(modifyConfig?: (MathJax: any) => any) {
+        const config = modifyConfig ? modifyConfig(structuredClone(DEFAULT_MATHJAX_CONFIG)) : DEFAULT_MATHJAX_CONFIG;
         const originalMathJax = (window as any).MathJax;
         document.querySelector('script[src="/lib/mathjax/tex-chtml-full.js"]')?.remove();
         await load('/lib/mathjax/tex-chtml-full.js', {
