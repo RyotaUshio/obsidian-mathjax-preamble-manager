@@ -1,5 +1,13 @@
-import MathJaxPreamblePlugin from "main";
-import { App, Component, Notice, TAbstractFile, TFile, TFolder, normalizePath, renderMath } from "obsidian";
+import type MathJaxPreamblePlugin from '@/main';
+import type { App, TAbstractFile } from 'obsidian';
+import {
+    Component,
+    Notice,
+    TFile,
+    TFolder,
+    normalizePath,
+    renderMath,
+} from 'obsidian';
 
 export interface Preamble {
     path: string;
@@ -8,7 +16,7 @@ export interface Preamble {
 
 export interface SerializedPreambles {
     preambles: { path: string }[];
-    folderPreambles: { folderPath: string, preamblePath: string }[];
+    folderPreambles: { folderPath: string; preamblePath: string }[];
 }
 
 export class PreambleManager extends Component {
@@ -20,7 +28,10 @@ export class PreambleManager extends Component {
     /** Stores the path of the last loaded preamble. */
     lastPreamblePath: string | null;
 
-    constructor(public plugin: MathJaxPreamblePlugin, private serialized: SerializedPreambles) {
+    constructor(
+        public plugin: MathJaxPreamblePlugin,
+        private serialized: SerializedPreambles,
+    ) {
         super();
         this.app = plugin.app;
         this.preambles = new Map();
@@ -33,15 +44,27 @@ export class PreambleManager extends Component {
             await this.deserialize(this.serialized);
             this.plugin.rerender();
         });
-        this.registerEvent(this.app.vault.on('modify', (file) => this.onModify(file)));
-        this.registerEvent(this.app.vault.on('rename', (file, oldPath) => this.onRename(file, oldPath)));
-        this.registerEvent(this.app.vault.on('delete', (file) => this.onDelete(file)));
+        this.registerEvent(
+            this.app.vault.on('modify', file => this.onModify(file)),
+        );
+        this.registerEvent(
+            this.app.vault.on('rename', (file, oldPath) =>
+                this.onRename(file, oldPath),
+            ),
+        );
+        this.registerEvent(
+            this.app.vault.on('delete', file => this.onDelete(file)),
+        );
     }
 
     serialize(): SerializedPreambles {
         return {
-            preambles: [...this.preambles.values()].map(({ path }) => ({ path })),
-            folderPreambles: [...this.folderPreambles.entries()].map(([folderPath, preamblePath]) => ({ folderPath, preamblePath }))
+            preambles: [...this.preambles.values()].map(({ path }) => ({
+                path,
+            })),
+            folderPreambles: [...this.folderPreambles.entries()].map(
+                ([folderPath, preamblePath]) => ({ folderPath, preamblePath }),
+            ),
         };
     }
 
@@ -54,12 +77,17 @@ export class PreambleManager extends Component {
             const file = this.app.vault.getAbstractFileByPath(path);
             if (file instanceof TFile) {
                 promises.push(
-                    this.app.vault.read(file).then(
-                        (content) => this.preambles.set(path, { path, content: this.preprocess(content) })
-                    )
+                    this.app.vault.read(file).then(content =>
+                        this.preambles.set(path, {
+                            path,
+                            content: this.preprocess(content),
+                        }),
+                    ),
                 );
             } else {
-                new Notice(`${this.plugin.manifest.name}: Preamble file ${path} not found.`);
+                new Notice(
+                    `${this.plugin.manifest.name}: Preamble file ${path} not found.`,
+                );
             }
         }
 
@@ -91,7 +119,10 @@ export class PreambleManager extends Component {
             for (const { path } of this.preambles.values()) {
                 if (path === file.path) {
                     const content = await this.app.vault.read(file);
-                    this.preambles.set(path, { path, content: this.preprocess(content) });
+                    this.preambles.set(path, {
+                        path,
+                        content: this.preprocess(content),
+                    });
                     this.plugin.rerender();
                 }
             }
@@ -107,11 +138,17 @@ export class PreambleManager extends Component {
     onFileRename(file: TFile, oldPath: string) {
         for (const { path, content } of this.preambles.values()) {
             if (path === oldPath) {
-                this.preambles.set(file.path, { path: file.path, content: content ? this.preprocess(content) : undefined });
+                this.preambles.set(file.path, {
+                    path: file.path,
+                    content: content ? this.preprocess(content) : undefined,
+                });
                 this.preambles.delete(oldPath);
             }
         }
-        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
+        for (const [
+            folderPath,
+            preamblePath,
+        ] of this.folderPreambles.entries()) {
             if (preamblePath === oldPath) {
                 this.folderPreambles.set(folderPath, file.path);
             }
@@ -124,20 +161,28 @@ export class PreambleManager extends Component {
                 const newPath = path.replace(oldPath, folder.path);
                 this.preambles.delete(path);
                 this.preambles.set(newPath, { path: newPath, content });
-
             }
         }
-        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
+        for (const [
+            folderPath,
+            preamblePath,
+        ] of this.folderPreambles.entries()) {
             const oldFolderPath = normalizePath(oldPath + '/');
             const newFolderPath = normalizePath(folder.path + '/');
             if (folderPath === oldPath) {
                 this.folderPreambles.delete(oldFolderPath);
-                this.folderPreambles.set(newFolderPath, preamblePath.replace(oldFolderPath, newFolderPath));
-            } else if (folderPath.startsWith(oldFolderPath) || preamblePath.startsWith(oldFolderPath)) {
+                this.folderPreambles.set(
+                    newFolderPath,
+                    preamblePath.replace(oldFolderPath, newFolderPath),
+                );
+            } else if (
+                folderPath.startsWith(oldFolderPath) ||
+                preamblePath.startsWith(oldFolderPath)
+            ) {
                 this.folderPreambles.delete(folderPath);
                 this.folderPreambles.set(
                     folderPath.replace(oldFolderPath, newFolderPath),
-                    preamblePath.replace(oldFolderPath, newFolderPath)
+                    preamblePath.replace(oldFolderPath, newFolderPath),
                 );
             }
         }
@@ -151,7 +196,10 @@ export class PreambleManager extends Component {
 
     onFileDelete(file: TFile) {
         this.preambles.delete(file.path);
-        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
+        for (const [
+            folderPath,
+            preamblePath,
+        ] of this.folderPreambles.entries()) {
             if (preamblePath === file.path) {
                 this.folderPreambles.delete(folderPath);
             }
@@ -164,23 +212,38 @@ export class PreambleManager extends Component {
                 this.preambles.delete(path);
             }
         }
-        for (const [folderPath, preamblePath] of this.folderPreambles.entries()) {
-            if (folder.path === folderPath || folderPath.startsWith(normalizePath(folder.path + '/')) || preamblePath.startsWith(normalizePath(folder.path + '/'))) {
+        for (const [
+            folderPath,
+            preamblePath,
+        ] of this.folderPreambles.entries()) {
+            if (
+                folder.path === folderPath ||
+                folderPath.startsWith(normalizePath(folder.path + '/')) ||
+                preamblePath.startsWith(normalizePath(folder.path + '/'))
+            ) {
                 this.folderPreambles.delete(folderPath);
             }
         }
     }
 
-    resolvedPreamble(sourcePath: string, frontmatter?: { preamble?: string }): Preamble | null {
+    resolvedPreamble(
+        sourcePath: string,
+        frontmatter?: { preamble?: string },
+    ): Preamble | null {
         if (typeof frontmatter?.preamble === 'string') {
             let preamblePath = frontmatter.preamble;
             if (preamblePath.startsWith('[[') && preamblePath.endsWith(']]')) {
                 preamblePath = preamblePath.slice(2, -2);
             }
-            const preambleFile = this.app.metadataCache.getFirstLinkpathDest(preamblePath, sourcePath);
+            const preambleFile = this.app.metadataCache.getFirstLinkpathDest(
+                preamblePath,
+                sourcePath,
+            );
             if (preambleFile) {
-                const preamble = [...this.preambles.values()].find(({ path }) => path === preambleFile.path);
-                if (preamble) return preamble
+                const preamble = [...this.preambles.values()].find(
+                    ({ path }) => path === preambleFile.path,
+                );
+                if (preamble) return preamble;
             }
         }
 

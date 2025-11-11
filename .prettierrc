@@ -1,0 +1,12 @@
+{
+  "overrides": [
+    {
+      "files": ["**/*.{ts,js,mts,mjs}"],
+      "options": {
+        "singleQuote": true,
+        "tabWidth": 4,
+        "arrowParens": "avoid"
+      }
+    }
+  ]
+}

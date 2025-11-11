@@ -1,60 +1,68 @@
-import { MarkdownView, Plugin, loadMathJax } from 'obsidian';
-import { MathJaxPreamblePluginSettingTab } from 'settings/settings';
-import { patchMarkdownPreviewView } from 'patches/markdown-preview-view';
-import { patchEditorView } from 'patches/editor-view';
-import { PreambleManager, SerializedPreambles } from 'manager';
-
+import type { MarkdownView } from 'obsidian';
+import { Plugin, loadMathJax } from 'obsidian';
+import { MathJaxPreamblePluginSettingTab } from '@/settings/settings';
+import { patchMarkdownPreviewView } from '@/patches/markdown-preview-view';
+import { patchEditorView } from '@/patches/editor-view';
+import type { SerializedPreambles } from '@/manager';
+import { PreambleManager } from '@/manager';
 
 export default class MathJaxPreamblePlugin extends Plugin {
-	manager: PreambleManager;
+    manager: PreambleManager;
 
-	async onload() {
-		await loadMathJax();
+    async onload() {
+        await loadMathJax();
 
-		const data = await this.loadData() ?? {} as { preambles?: SerializedPreambles };
-		const serializedPreambles = data['preambles'] || { preambles: [], folderPreambles: [] };
+        const data =
+            (await this.loadData()) ??
+            ({} as { preambles?: SerializedPreambles });
+        const serializedPreambles = data['preambles'] || {
+            preambles: [],
+            folderPreambles: [],
+        };
 
-		this.addSettingTab(new MathJaxPreamblePluginSettingTab(this));
+        this.addSettingTab(new MathJaxPreamblePluginSettingTab(this));
 
-		this.addChild(this.manager = new PreambleManager(this, serializedPreambles));
+        this.addChild(
+            (this.manager = new PreambleManager(this, serializedPreambles)),
+        );
 
-		/** For Reading View */
-		patchMarkdownPreviewView(this);
+        /** For Reading View */
+        patchMarkdownPreviewView(this);
 
-		// Note: The following works as well, but this postprocessor is called for every section element,
-		// which is not ideal
-		
-		// this.registerMarkdownPostProcessor((el, ctx) => {
-		// 	this.manager.loadPreamble(ctx.sourcePath, ctx.frontmatter);
-		// }, -Infinity);
+        // Note: The following works as well, but this postprocessor is called for every section element,
+        // which is not ideal
 
-		/** For Live Preview */
-		patchEditorView(this);
-	}
+        // this.registerMarkdownPostProcessor((el, ctx) => {
+        // 	this.manager.loadPreamble(ctx.sourcePath, ctx.frontmatter);
+        // }, -Infinity);
 
-	async saveSettings() {
-		await this.saveData({ preambles: this.manager.serialize() });
-	}
+        /** For Live Preview */
+        patchEditorView(this);
+    }
 
-	async rerender() {
-		this.manager.forgetHistory();
+    async saveSettings() {
+        await this.saveData({ preambles: this.manager.serialize() });
+    }
 
-		for (const leaf of this.app.workspace.getLeavesOfType('markdown')) {
-			const view = leaf.view as MarkdownView;
-			const state = view.getState();
-			const eState = view.getEphemeralState();
-			view.previewMode.rerender(true);
-			const editor = view.editor;
-			editor.setValue(editor.getValue());
-			if (state.mode === 'preview') {
-				// Temporarily switch to Editing view and back to Reading view
-				// to avoid Properties to be hidden
-				state.mode = 'source';
-				await view.setState(state, { history: false });
-				state.mode = 'preview';
-				await view.setState(state, { history: false });
-			}
-			view.setEphemeralState(eState);
-		}
-	}
+    async rerender() {
+        this.manager.forgetHistory();
+
+        for (const leaf of this.app.workspace.getLeavesOfType('markdown')) {
+            const view = leaf.view as MarkdownView;
+            const state = view.getState();
+            const eState = view.getEphemeralState();
+            view.previewMode.rerender(true);
+            const editor = view.editor;
+            editor.setValue(editor.getValue());
+            if (state.mode === 'preview') {
+                // Temporarily switch to Editing view and back to Reading view
+                // to avoid Properties to be hidden
+                state.mode = 'source';
+                await view.setState(state, { history: false });
+                state.mode = 'preview';
+                await view.setState(state, { history: false });
+            }
+            view.setEphemeralState(eState);
+        }
+    }
 }

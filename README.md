@@ -6,7 +6,7 @@ This [Obsidian.md](https://obsidian.md) plugin lets you **use MathJax preambles*
 - For each note, the preamble to be applied can be specified via either of the following ways:
   1. Folder preamble: Specify a preamble to be applied for all notes under a folder, similarly to [Templater](https://github.com/SilentVoid13/Templater)'s folder templates. If you want a preamble to apply to the entire vault, set it as a folder preamble for the vault root ("/").
   2. Properties (YAML front matter): Add a link (`[[...]]`) or a path (relative to the vault root) to a preamble as "preamble" property.
-- Markdown code blocks (<code>``` ... ```</code>) and math blocks (`$$ ... $$`) will be automanically trimmed, so it's easy to edit preambles in Obsidian's markdown editor.
+- Markdown code blocks (<code>`...`</code>) and math blocks (`$$ ... $$`) will be automanically trimmed, so it's easy to edit preambles in Obsidian's markdown editor.
 - When a preable file is modified, the changes will be immediately reflected to currently opened note. You don't need to reload the app to see the effect.
 
 > [!note]
@@ -14,7 +14,8 @@ This [Obsidian.md](https://obsidian.md) plugin lets you **use MathJax preambles*
 
 ## Example
 
-So suppose you want to use different probability symbols for different paths, say, 
+So suppose you want to use different probability symbols for different paths, say,
+
 - $\mathbb{P} \left( \cdots \right)$ for `Folder A`
 - $\mathrm{Pr} \left[ \cdots \right]$ for `Note B`
 
@@ -23,11 +24,13 @@ So suppose you want to use different probability symbols for different paths, sa
 Now you need to create two preamble files. Preambles can be any plain text files, but I recommend using markdown files because they can be easily edited from within Obsidian. In this example, the preamble for `Folder A` can be written in either of the following syntaxes:
 
 - No formatting
+
   ```
   \newcommand{\P}[1]{\mathbb{P} \left( #1 \right)}
   ```
 
 - Math block syntax
+
   ```
   $$
   \newcommand{\P}[1]{\mathbb{P} \left( #1 \right)}
@@ -35,6 +38,7 @@ Now you need to create two preamble files. Preambles can be any plain text files
   ```
 
 - Inline math syntax
+
   ```
   $\newcommand{\P}[1]{\mathbb{P} \left( #1 \right)}$
   ```
@@ -57,7 +61,6 @@ So now, we have the following two preambles:
   \newcommand{\P}[1]{\mathbb{P} \left( #1 \right)}
   $$
   ```
-
 
 - `Preamble B.md`
 
@@ -91,7 +94,6 @@ In order to apply a preamble to a single note (as opposed to an entire folder), 
 
 <img width="469" alt="image" src="https://github.com/RyotaUshio/obsidian-mathjax-preamble-manager/assets/72342591/baafcbb5-09af-4d50-9283-93aafabb2d04">
 
-
 ### Using preambles in slides
 
 This plugin supports the normal markdown views (Reading view/Live preview), embeds, hover page preview, PDF export and Canvas, but slides ([the core Slides plugin](https://help.obsidian.md/Plugins/Slides) and the [Advanced Slides](https://github.com/MSzturc/obsidian-advanced-slides) plugin) are not supported.
@@ -111,7 +113,6 @@ Slide 2
 
 ...
 ```
-
 
 ## Installation
 

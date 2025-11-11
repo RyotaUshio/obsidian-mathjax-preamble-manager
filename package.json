@@ -1,26 +1,35 @@
 {
-	"name": "obsidian-mathjax-preamble-manager",
-	"version": "0.2.10",
-	"description": "Use preamble in Obsidian / switch preambles note to note.",
-	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
-	},
-	"keywords": [],
-	"author": "Ryota Ushio",
-	"license": "MIT",
-	"devDependencies": {
-		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "5.29.0",
-		"@typescript-eslint/parser": "5.29.0",
-		"builtin-modules": "3.3.0",
-		"esbuild": "0.17.3",
-		"obsidian": "latest",
-		"tslib": "2.4.0",
-		"typescript": "4.7.4"
-	},
-	"dependencies": {
-		"monkey-around": "^2.3.0"
-	}
+  "name": "obsidian-mathjax-preamble-manager",
+  "version": "1.0.0",
+  "description": "Use preamble in Obsidian / switch preambles note to note.",
+  "scripts": {
+    "dev": "NODE_ENV=development rolldown --watch -c",
+    "build": "tsc && NODE_ENV=production rolldown -c",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "version": "tsx scripts/version-bump.ts"
+  },
+  "keywords": [],
+  "author": "Ryota Ushio",
+  "license": "MIT",
+  "packageManager": "pnpm@10.21.0",
+  "devDependencies": {
+    "@codemirror/state": "6.5.0",
+    "@codemirror/view": "6.38.1",
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.0",
+    "builtin-modules": "^5.0.0",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.39.1",
+    "monkey-around": "^3.0.0",
+    "obsidian": "latest",
+    "prettier": "^3.6.2",
+    "rolldown": "1.0.0-beta.49",
+    "rollup-plugin-copy": "^3.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4"
+  }
 }

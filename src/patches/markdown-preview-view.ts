@@ -1,15 +1,25 @@
+import type MathJaxPreamblePlugin from '@/main';
 import { around } from 'monkey-around';
-import MathJaxPreamblePlugin from 'main';
-import { App, MarkdownPostProcessorContext, MarkdownPreviewView } from 'obsidian';
+import type { App, MarkdownPostProcessorContext } from 'obsidian';
+import { MarkdownPreviewView } from 'obsidian';
 
 export const patchMarkdownPreviewView = (plugin: MathJaxPreamblePlugin) => {
-    plugin.register(around(MarkdownPreviewView, {
-        // @ts-ignore
-        postProcess(old) {
-            return function (app: App, ctx: MarkdownPostProcessorContext) {
-                plugin.manager.loadPreamble(ctx.sourcePath, ctx.frontmatter);
-                return old.call(this, app, ctx);
-            }
-        }
-    }));
+    plugin.register(
+        around(MarkdownPreviewView, {
+            // @ts-expect-error: MarkdownPreviewView.postProcess is not public
+            postProcess(old) {
+                return function (
+                    this: MarkdownPreviewView,
+                    app: App,
+                    ctx: MarkdownPostProcessorContext,
+                ) {
+                    plugin.manager.loadPreamble(
+                        ctx.sourcePath,
+                        ctx.frontmatter,
+                    );
+                    return old.call(this, app, ctx);
+                };
+            },
+        }),
+    );
 };
