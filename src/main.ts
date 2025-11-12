@@ -1,16 +1,20 @@
 import type { MarkdownView } from 'obsidian';
-import { Plugin, loadMathJax } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { MathJaxPreamblePluginSettingTab } from '@/settings/settings';
 import { patchMarkdownPreviewView } from '@/patches/markdown-preview-view';
 import { patchEditorView } from '@/patches/editor-view';
 import type { SerializedPreambles } from '@/manager';
 import { PreambleManager } from '@/manager';
+import { reloadMathJax } from './reloadMathJax';
+import { getDefaultMathJaxConfig } from './getDefaultMathJaxConfig';
 
 export default class MathJaxPreamblePlugin extends Plugin {
     manager: PreambleManager;
 
     async onload() {
-        await loadMathJax();
+        await getDefaultMathJaxConfig();
+
+
 
         const data =
             (await this.loadData()) ??
