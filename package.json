@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Use preamble in Obsidian / switch preambles note to note.",
   "scripts": {
-    "dev": "NODE_ENV=development rolldown --watch -c",
-    "build": "tsc && NODE_ENV=production rolldown -c",
+    "dev": "vite build --watch --mode=development",
+    "build": "tsc && vite build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint",
@@ -26,11 +26,11 @@
     "monkey-around": "^3.0.0",
     "obsidian": "latest",
     "prettier": "^3.6.2",
-    "rolldown": "1.0.0-beta.49",
     "rollup-plugin-copy": "^3.5.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4",
-    "valibot": "^1.1.0"
+    "valibot": "^1.1.0",
+    "vite": "^7.2.2"
   }
 }
