@@ -1,10 +1,15 @@
 import { Plugin } from 'obsidian';
 import { getDefaultMathJaxConfig } from './getDefaultMathJaxConfig';
-import { parseSettings } from './settings/settings';
+import { onMathJaxAlreadyLoaded } from './onMathJaxAlreadyLoaded';
 import { initialize } from './orchestrate';
+import { parseSettings } from './settings/settings';
 
 export default class MathJaxPreamblePlugin extends Plugin {
     async onload() {
+        if (window.MathJax) {
+            return onMathJaxAlreadyLoaded(this);
+        }
+
         await getDefaultMathJaxConfig();
         const settings = parseSettings(await this.loadData());
         await this.saveData(settings);
