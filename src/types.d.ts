@@ -1,11 +1,10 @@
 interface MathJax {
     version: string;
-    [key: string]: any;
+    tex2chtml: (tex: string, options?: Record<string, unknown>) => HTMLElement;
+    chtmlStylesheet: () => HTMLStyleElement;
 }
 
-interface MathJaxConfig {
-    [key: string]: any;
-}
+type MathJaxConfig = Record<string, unknown>;
 
 interface Window {
     MathJax: MathJax;

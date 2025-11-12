@@ -1,24 +1,16 @@
-import type MathJaxPreamblePlugin from '@/main';
+import type { SetCtxFunction } from '@/instance';
 import { EditorView } from '@codemirror/view';
 import { around } from 'monkey-around';
 import { editorInfoField } from 'obsidian';
 
-export const patchEditorView = (plugin: MathJaxPreamblePlugin) => {
-    plugin.register(
-        around(EditorView.prototype, {
-            update(old) {
-                return function (this: EditorView, ...args) {
-                    const sourcePath =
-                        this.state.field(editorInfoField, false)?.file?.path ??
-                        '';
-                    plugin.manager.loadPreamble(
-                        sourcePath,
-                        plugin.app.metadataCache.getCache(sourcePath)
-                            ?.frontmatter,
-                    );
-                    return old.apply(this, args);
-                };
+export const patchEditorView = (setCtx: SetCtxFunction) => {
+    return around(EditorView.prototype, {
+        update: next =>
+            function (this: EditorView, ...args) {
+                const file =
+                    this.state.field(editorInfoField, false)?.file ?? null;
+                setCtx({ file });
+                return next.apply(this, args);
             },
-        }),
-    );
+    });
 };

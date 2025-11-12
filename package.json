@@ -30,6 +30,7 @@
     "rollup-plugin-copy": "^3.5.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.4"
+    "typescript-eslint": "^8.46.4",
+    "valibot": "^1.1.0"
   }
 }

@@ -1,72 +1,36 @@
-import type { MarkdownView } from 'obsidian';
 import { Plugin } from 'obsidian';
-import { MathJaxPreamblePluginSettingTab } from '@/settings/settings';
-import { patchMarkdownPreviewView } from '@/patches/markdown-preview-view';
-import { patchEditorView } from '@/patches/editor-view';
-import type { SerializedPreambles } from '@/manager';
-import { PreambleManager } from '@/manager';
-import { reloadMathJax } from './reloadMathJax';
 import { getDefaultMathJaxConfig } from './getDefaultMathJaxConfig';
+import { parseSettings } from './settings/settings';
+import { initialize } from './orchestrate';
 
 export default class MathJaxPreamblePlugin extends Plugin {
-    manager: PreambleManager;
-
     async onload() {
         await getDefaultMathJaxConfig();
-
-
-
-        const data =
-            (await this.loadData()) ??
-            ({} as { preambles?: SerializedPreambles });
-        const serializedPreambles = data['preambles'] || {
-            preambles: [],
-            folderPreambles: [],
-        };
-
-        this.addSettingTab(new MathJaxPreamblePluginSettingTab(this));
-
-        this.addChild(
-            (this.manager = new PreambleManager(this, serializedPreambles)),
-        );
-
-        /** For Reading View */
-        patchMarkdownPreviewView(this);
-
-        // Note: The following works as well, but this postprocessor is called for every section element,
-        // which is not ideal
-
-        // this.registerMarkdownPostProcessor((el, ctx) => {
-        // 	this.manager.loadPreamble(ctx.sourcePath, ctx.frontmatter);
-        // }, -Infinity);
-
-        /** For Live Preview */
-        patchEditorView(this);
+        const settings = parseSettings(await this.loadData());
+        await this.saveData(settings);
+        const cleanup = await initialize(settings);
+        this.register(cleanup);
     }
 
-    async saveSettings() {
-        await this.saveData({ preambles: this.manager.serialize() });
-    }
+    // async rerender() {
+    //     this.manager.forgetHistory();
 
-    async rerender() {
-        this.manager.forgetHistory();
-
-        for (const leaf of this.app.workspace.getLeavesOfType('markdown')) {
-            const view = leaf.view as MarkdownView;
-            const state = view.getState();
-            const eState = view.getEphemeralState();
-            view.previewMode.rerender(true);
-            const editor = view.editor;
-            editor.setValue(editor.getValue());
-            if (state.mode === 'preview') {
-                // Temporarily switch to Editing view and back to Reading view
-                // to avoid Properties to be hidden
-                state.mode = 'source';
-                await view.setState(state, { history: false });
-                state.mode = 'preview';
-                await view.setState(state, { history: false });
-            }
-            view.setEphemeralState(eState);
-        }
-    }
+    //     for (const leaf of this.app.workspace.getLeavesOfType('markdown')) {
+    //         const view = leaf.view as MarkdownView;
+    //         const state = view.getState();
+    //         const eState = view.getEphemeralState();
+    //         view.previewMode.rerender(true);
+    //         const editor = view.editor;
+    //         editor.setValue(editor.getValue());
+    //         if (state.mode === 'preview') {
+    //             // Temporarily switch to Editing view and back to Reading view
+    //             // to avoid Properties to be hidden
+    //             state.mode = 'source';
+    //             await view.setState(state, { history: false });
+    //             state.mode = 'preview';
+    //             await view.setState(state, { history: false });
+    //         }
+    //         view.setEphemeralState(eState);
+    //     }
+    // }
 }

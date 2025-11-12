@@ -2,23 +2,29 @@ import { loadMathJax } from 'obsidian';
 import { isMathJaxScript } from './onMathJaxLoaded';
 import { around } from 'monkey-around';
 
-let defaultConfig: any;
+let defaultConfig: MathJaxConfig | undefined;
 
 export async function getDefaultMathJaxConfig(): Promise<MathJaxConfig> {
-    return (defaultConfig ??= await new Promise<any>(resolve => {
-        const cleanup = around(document.body, {
-            appendChild(next) {
-                return function (this, ...args) {
-                    if (isMathJaxScript(args[0])) {
-                        resolve(
-                            structuredClone(window.MathJax as MathJaxConfig),
-                        );
-                        cleanup();
-                    }
-                    return next.apply(this, args);
-                };
-            },
-        });
-        loadMathJax();
-    }));
+    return structuredClone(
+        (defaultConfig ??= await new Promise<MathJaxConfig>(resolve => {
+            const cleanup = around(document.body, {
+                appendChild: next =>
+                    function <T extends Node>(
+                        this: HTMLBodyElement,
+                        node: T,
+                    ): T {
+                        if (isMathJaxScript(node)) {
+                            resolve(
+                                structuredClone(
+                                    window.MathJax as unknown as MathJaxConfig,
+                                ),
+                            );
+                            cleanup();
+                        }
+                        return next.call(this, node) as T;
+                    },
+            });
+            loadMathJax();
+        })),
+    );
 }
