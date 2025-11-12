@@ -29,7 +29,7 @@ async function resolveConfig(
     config?: MathJaxInstanceOptions['config'],
 ): Promise<MathJaxConfig> {
     const defaultConfig = await getDefaultMathJaxConfig();
-    console.assert(!defaultConfig.loader)
+    console.assert(!defaultConfig.loader);
     if (typeof config === 'function') {
         config(defaultConfig);
         return defaultConfig;
